@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Lua3 by wangfakang</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Lua3</h1>
+        <p class="header">lua string performance and using table </p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/wangfakang/lua3/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/wangfakang/lua3/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/wangfakang/lua3">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/wangfakang">wangfakang</a></p>
+
+
+      </header>
+      <section>
+        <p><code>对lua中字符串类型的认识：</code></p>
+
+<p>　　首先在lua中其字符串的处理都是一种引用的方式，比如有两个字符串变量的值是一样的则在内存中是指向同一个字符串的，
+相当于引用计数.而且在lua中是不允许直接对字符串进行修改的，相当于一个常量区的．此时只可以在新的位置进行开一个
+空间然后进行旧值拷贝什么的工作．<br>
+　
+　　方法想必大家对lua中的字符串连接都知道吧［十分简单＂..＂字符串之间使用两个点号就可以进行连接了］．     </p>
+
+<ul>
+<li>
+<p>注意：<br>
+　　  </p>
+
+<ul>
+<li>场景：<br>
+　      当我们在一个程序中进行多次操作［使用".."进行连接字符串的操作］的时候［如循环］就会给性能上<br>
+　　    造成很大的影响．<br>
+</li>
+<li>原因：<br>
+　      其实原因也很简单，就像我开始介绍lua字符串类型一样［lua字符串类型的特点］，相同的值字符串使
+用同一块内存空间，不同的话则会开辟新的内存空间进行值的拷贝．当这种操作多了自然性能就下降了．<br>
+</li>
+</ul>
+
+<ul>
+<li>
+<p>解决方案：       </p>
+
+<p>使用lua中的table来解决这个问题如：     </p>
+</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="传统的方式" class="anchor" href="#%E4%BC%A0%E7%BB%9F%E7%9A%84%E6%96%B9%E5%BC%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>传统的方式:</h2>
+
+<p>　</p>
+
+<div class="highlight highlight-source-lua"><pre>  <span class="pl-c1">1</span> <span class="pl-k">local</span> t <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+  <span class="pl-c1">2</span> <span class="pl-k">local</span> test <span class="pl-k">=</span> {<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>world<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>haha<span class="pl-pds">"</span></span>}
+  <span class="pl-c1">3</span> <span class="pl-k">for</span> j,line <span class="pl-k">in</span> <span class="pl-c1">ipairs</span>(test) <span class="pl-k">do</span>
+  <span class="pl-c1">4</span>     t <span class="pl-k">=</span> t<span class="pl-k">..</span>line
+  <span class="pl-c1">5</span> <span class="pl-k">end</span> 
+  <span class="pl-c1">6</span> <span class="pl-c1">print</span>(t)</pre></div>
+
+<h2>
+<a id="改善的方式" class="anchor" href="#%E6%94%B9%E5%96%84%E7%9A%84%E6%96%B9%E5%BC%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>改善的方式：</h2>
+
+<p>　
+　</p>
+
+<div class="highlight highlight-source-lua"><pre>　
+　<span class="pl-c1">1</span> <span class="pl-k">local</span> t <span class="pl-k">=</span> {}
+  <span class="pl-c1">2</span> <span class="pl-k">local</span> test <span class="pl-k">=</span> {<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>world<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>haha<span class="pl-pds">"</span></span>}
+  <span class="pl-c1">3</span> <span class="pl-k">for</span> j,line <span class="pl-k">in</span> <span class="pl-c1">ipairs</span>(test) <span class="pl-k">do</span>
+  <span class="pl-c1">4</span>     t[<span class="pl-k">#</span>t <span class="pl-k">+</span> <span class="pl-c1">1</span>] <span class="pl-k">=</span> line
+  <span class="pl-c1">5</span> <span class="pl-k">end</span> 
+  <span class="pl-c1">6</span> s <span class="pl-k">=</span> <span class="pl-c1">table.concat</span>(t)
+  <span class="pl-c1">7</span> 
+  <span class="pl-c1">8</span> <span class="pl-c1">print</span>(s)</pre></div>
+
+<p>当使用第二种方案时候，在处理很多的时候其性能还是提升了不少．　　　</p>
+
+<h1>
+<a id="欢迎一起交流学习-" class="anchor" href="#%E6%AC%A2%E8%BF%8E%E4%B8%80%E8%B5%B7%E4%BA%A4%E6%B5%81%E5%AD%A6%E4%B9%A0-" aria-hidden="true"><span class="octicon octicon-link"></span></a>欢迎一起交流学习 </h1>
+
+<p>在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流</p>
+
+<ul>
+<li>邮件(1031379296#qq.com, 把#换成@)</li>
+<li>QQ: 1031379296</li>
+<li>weibo: <a href="http://weibo.com/u/2786211992/home">@王发康</a>
+</li>
+</ul>
+
+<h1>
+<a id="thx" class="anchor" href="#thx" aria-hidden="true"><span class="octicon octicon-link"></span></a>Thx</h1>
+
+<ul>
+<li>chunshengsterATgmail.com</li>
+</ul>
+
+<h1>
+<a id="author" class="anchor" href="#author" aria-hidden="true"><span class="octicon octicon-link"></span></a>Author</h1>
+
+<ul>
+<li>Linux\nginx\golang\c\c++爱好者</li>
+<li>欢迎一起交流  一起学习# </li>
+<li>Others say good and Others good</li>
+</ul>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("lua string performance and using table ");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
